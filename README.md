@@ -21,12 +21,14 @@ Le dipendenze (`yt-dlp`, `curl-cffi`, `playwright`, `rich`, `textual`) vengono i
 
 ## Utilizzo
 
+### AnimeUnity
+
 ```bash
 # Scarica gli episodi dall'1 al 10
 uv run animeunity_dl.py download https://www.animeunity.so/anime/390-dragon-ball-super-ita 1 10
 
-# Scarica i capitoli manga mancanti da MangaDex
-uv run animeunity_dl.py  # avvia la TUI interattiva
+# Scarica gli episodi mancanti/parziali
+uv run animeunity_dl.py missing https://www.animeunity.so/anime/390-dragon-ball-super-ita
 
 # Sincronizza i file mancanti sul server SSH Linux
 uv run animeunity_dl.py sync --local "D:/downloader/Dragon Ball Super Ita"
@@ -37,6 +39,20 @@ Su Windows puoi usare anche il batch incluso:
 ```bat
 scarica_dbs.bat
 ```
+
+### MangaDex
+
+Avvia la TUI interattiva e seleziona la sezione Manga:
+
+```bash
+uv run animeunity_dl.py
+```
+
+Dalla TUI è possibile:
+- Cercare manga, manhwa e manhua per titolo
+- Filtrare per lingua (italiano, inglese, spagnolo, francese), genere, stato, demografia e content rating
+- Scaricare i capitoli mancanti di una serie già presente in locale
+- Accodare più serie in parallelo
 
 ## Configurazione
 
