@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.pyo
+ffmpeg/
+history.json
+Dragon Ball Super Ita/
