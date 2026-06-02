@@ -1,12 +1,14 @@
 # animeDownloader
 
-Script Python per scaricare episodi da **AnimeUnity** (.so / .to / .tv) e sincronizzarli su un server SSH.
+Script Python per scaricare anime da **AnimeUnity** (.so / .to / .tv) e manga/manhwa da **MangaDex** su Windows, con sincronizzazione automatica su server Linux via SSH.
 
 ## Funzionalità
 
-- Scarica episodi in un intervallo specificato tramite `yt-dlp`
+- Scarica episodi anime in un intervallo specificato tramite `yt-dlp`
+- Scarica capitoli manga/manhwa da MangaDex (con supporto lingua italiana)
+- Interfaccia TUI interattiva per cercare e accodare download
 - Scarica automaticamente `ffmpeg`/`ffprobe` portatili se non presenti nel sistema
-- Sincronizza gli episodi su un server remoto via SSH (copia i file mancanti)
+- Sincronizza gli episodi su un server Linux remoto via SSH (copia i file mancanti, gestione filesystem)
 - Cronologia dei download (`history.json`) per evitare duplicati
 - Configurazione persistente via `settings.json`
 
@@ -23,7 +25,10 @@ Le dipendenze (`yt-dlp`, `curl-cffi`, `playwright`, `rich`, `textual`) vengono i
 # Scarica gli episodi dall'1 al 10
 uv run animeunity_dl.py download https://www.animeunity.so/anime/390-dragon-ball-super-ita 1 10
 
-# Sincronizza i file mancanti sul server SSH
+# Scarica i capitoli manga mancanti da MangaDex
+uv run animeunity_dl.py  # avvia la TUI interattiva
+
+# Sincronizza i file mancanti sul server SSH Linux
 uv run animeunity_dl.py sync --local "D:/downloader/Dragon Ball Super Ita"
 ```
 
