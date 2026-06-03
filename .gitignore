@@ -1,6 +1,69 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
-ffmpeg/
+*.pyd
+*.egg-info/
+*.egg
+.eggs/
+dist/
+build/
+*.whl
+
+# Virtual envs / dependency managers
+.venv/
+venv/
+env/
+.env
+.env.*
+uv.lock
+
+# IDE / editor
+.vscode/
+.idea/
+*.suo
+*.user
+*.workspace
+.DS_Store
+Thumbs.db
+
+# Log e debug
+*.log
+*_debug.log
+*.log.*
+debug*.py
+test_*.py
+
+# Cache e temp
+*.tmp
+*.bak
+*.swp
+*~
+.cache/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Playwright
+.playwright_profile/
+
+# Dati personali / privacy
 history.json
+manga_history.json
+settings.json
+cookies.json
+cookies.txt
+*.session
+*.db
+*.sqlite
+
+# Downloads e contenuti
+downloads/
+ffmpeg/
 Dragon Ball Super Ita/
+
+# Tool e config locali
+todo.md
+pyproject.toml
