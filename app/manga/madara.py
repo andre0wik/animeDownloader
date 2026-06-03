@@ -82,49 +82,64 @@ class MadaraPlatform(MangaPlatform):
             pass
         return self._search_html(title, filters)
 
-    def _browse_filtered(self, filters: dict) -> list[dict]:
-        """Browse manga archive by genre/status when no title is given."""
+    def _browse_filtered(self, filters: dict, max_pages: int = 5) -> list[dict]:
+        """Browse manga archive by genre/status when no title is given (paginated)."""
         status = filters.get("status", "")
         genres = filters.get("genres", [])
 
-        qs_parts = ["post_type=wp-manga"]
+        base_qs = ["post_type=wp-manga"]
         if status:
-            qs_parts.append(f"status={urllib.parse.quote(status)}")
+            base_qs.append(f"status={urllib.parse.quote(status)}")
         for g in genres:
-            qs_parts.append(f"genre[]={urllib.parse.quote(g)}")
+            base_qs.append(f"genre[]={urllib.parse.quote(g)}")
+        base_qs_str = "&".join(base_qs)
 
-        url = f"{self.base_url}/?{'&'.join(qs_parts)}"
-        try:
-            resp = _SESSION.get(url, timeout=15)
-            soup = BeautifulSoup(resp.text, "lxml")
-            results = []
-            for item in soup.select(".c-tabs-item__content, .page-item-detail"):
-                a = item.select_one("h3.h4 a, .post-title h3 a, .post-title a")
-                if not a:
-                    continue
-                href   = a.get("href", "")
-                slug   = href.rstrip("/").split("/")[-1]
-                t      = a.get_text(strip=True)
-                st_el  = item.select_one(".mg_status .summary-content")
-                status_text = st_el.get_text(strip=True) if st_el else ""
-                genres_text = ", ".join(
-                    g.get_text(strip=True)
-                    for g in item.select(".mg_genres .summary-content a")[:3]
-                )
-                results.append({
-                    "manga_id":       slug,
-                    "title":          t,
-                    "status":         status_text,
-                    "content_rating": "",
-                    "original_lang":  "ko",
-                    "genres":         genres_text,
-                    "languages":      "",
-                    "platform":       self.id,
-                    "_url":           href,
-                })
-            return results
-        except Exception as e:
-            raise RuntimeError(f"Sfoglia fallita: {e}") from e
+        results: list[dict] = []
+        seen:    set[str]   = set()
+
+        for page in range(1, max_pages + 1):
+            paged = f"&paged={page}" if page > 1 else ""
+            url   = f"{self.base_url}/?{base_qs_str}{paged}"
+            try:
+                resp  = _SESSION.get(url, timeout=15)
+                soup  = BeautifulSoup(resp.text, "lxml")
+                items = soup.select(".c-tabs-item__content, .page-item-detail")
+                if not items:
+                    break
+                for item in items:
+                    a = item.select_one("h3.h4 a, .post-title h3 a, .post-title a")
+                    if not a:
+                        continue
+                    href = a.get("href", "")
+                    slug = href.rstrip("/").split("/")[-1]
+                    if slug in seen:
+                        continue
+                    seen.add(slug)
+                    t       = a.get_text(strip=True)
+                    st_el   = item.select_one(".mg_status .summary-content")
+                    g_texts = ", ".join(
+                        g.get_text(strip=True)
+                        for g in item.select(".mg_genres .summary-content a")[:3]
+                    )
+                    results.append({
+                        "manga_id":       slug,
+                        "title":          t,
+                        "status":         st_el.get_text(strip=True) if st_el else "",
+                        "content_rating": "",
+                        "original_lang":  "ko",
+                        "genres":         g_texts,
+                        "languages":      "",
+                        "platform":       self.id,
+                        "_url":           href,
+                    })
+                if page > 1:
+                    time.sleep(0.3)
+            except Exception as e:
+                if not results:
+                    raise RuntimeError(f"Sfoglia fallita: {e}") from e
+                break
+
+        return results
 
     def _search_html(self, title: str, filters: dict) -> list[dict]:
         qs = urllib.parse.urlencode({"s": title, "post_type": "wp-manga"})

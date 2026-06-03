@@ -61,55 +61,68 @@ class WebtoonPlatform(MangaPlatform):
     name      = "LINE Webtoon"
     dl_subdir = "Webtoon"
 
-    supported_filters = {"lang", "genres"}
-    lang_opts         = _LANG_OPTS
-    genres            = _GENRES
+    supported_filters     = {"lang", "genres"}
+    lang_opts             = _LANG_OPTS
+    genres                = _GENRES
+    supports_empty_search = True
 
     # ------------------------------------------------------------------ search
 
     def search(self, title: str, filters: dict) -> list[dict]:
-        lang    = filters.get("lang") or "en"
-        results = []
+        lang   = filters.get("lang") or "en"
+        genres = filters.get("genres", [])
         if not title:
-            return results
+            return self._browse_genre(lang, genres)
         try:
             url  = f"{_BASE}/{lang}/search?keyword={urllib.parse.quote(title)}"
             resp = _SESSION.get(url, timeout=15)
             soup = BeautifulSoup(resp.text, "lxml")
-
-            seen: set[str] = set()
-            for card in soup.select("a[data-title-no]"):
-                title_no = card.get("data-title-no", "")
-                if not title_no or title_no in seen:
-                    continue
-                seen.add(title_no)
-
-                href = card.get("href", "")
-                # Extract path like "en/fantasy/tower-of-god" from full href
-                m    = re.match(r"https://www\.webtoons\.com/(.+)/list", href)
-                path = m.group(1) if m else f"{lang}/_/_"
-
-                # Card text: "UP|Tower of God|SIU|1B Views" — skip short/badge tokens
-                raw      = card.get_text(separator="|", strip=True)
-                segments = [s for s in raw.split("|") if len(s) > 2 and s not in _SKIP_TOKENS]
-                t        = segments[0] if segments else ""
-                if not t:
-                    continue
-
-                results.append({
-                    "manga_id":       f"{lang}:{title_no}:{path}",
-                    "title":          t,
-                    "status":         "",
-                    "content_rating": "safe",
-                    "original_lang":  "ko",
-                    "genres":         "",
-                    "languages":      lang,
-                    "platform":       self.id,
-                    "_title_no":      title_no,
-                    "_path":          path,
-                })
+            return self._parse_cards(soup, lang)
         except Exception as e:
             raise RuntimeError(f"Ricerca Webtoon fallita: {e}") from e
+
+    def _browse_genre(self, lang: str, genres: list) -> list[dict]:
+        """Browse genre page when no title is given."""
+        genre = genres[0] if genres else ""
+        url   = f"{_BASE}/{lang}/genre" + (f"?genreCode={genre}" if genre else "")
+        try:
+            resp = _SESSION.get(url, timeout=15)
+            soup = BeautifulSoup(resp.text, "lxml")
+            return self._parse_cards(soup, lang)
+        except Exception as e:
+            raise RuntimeError(f"Sfoglia Webtoon genre fallita: {e}") from e
+
+    def _parse_cards(self, soup: BeautifulSoup, lang: str) -> list[dict]:
+        results: list[dict] = []
+        seen:    set[str]   = set()
+        for card in soup.select("a[data-title-no]"):
+            title_no = card.get("data-title-no", "")
+            if not title_no or title_no in seen:
+                continue
+            seen.add(title_no)
+
+            href = card.get("href", "")
+            m    = re.match(r"https://www\.webtoons\.com/(.+)/list", href)
+            path = m.group(1) if m else f"{lang}/_/_"
+
+            raw      = card.get_text(separator="|", strip=True)
+            segments = [s for s in raw.split("|") if len(s) > 2 and s not in _SKIP_TOKENS]
+            t        = segments[0] if segments else ""
+            if not t:
+                continue
+
+            results.append({
+                "manga_id":       f"{lang}:{title_no}:{path}",
+                "title":          t,
+                "status":         "",
+                "content_rating": "safe",
+                "original_lang":  "ko",
+                "genres":         "",
+                "languages":      lang,
+                "platform":       self.id,
+                "_title_no":      title_no,
+                "_path":          path,
+            })
         return results
 
     # ---------------------------------------------------------------- chapters
