@@ -26,7 +26,7 @@ class MainMenuScreen(Screen):
                 id="main-title",
             )
             yield Button("Anime / Film  ·  AnimeUnity",    id="go-anime",       variant="primary")
-            yield Button("Manga / Manhwa  ·  5 piattaforme", id="go-manga",      variant="success")
+            yield Button("Manga / Manhwa  ·  6 piattaforme", id="go-manga",      variant="success")
             yield Button("Ebook  ·  Anna's Archive + ZLib", id="go-ebook",    variant="success")
             yield Button("Coda download  (Ctrl+D)",       id="go-queue",       variant="default")
             yield Button("Impostazioni",                  id="go-settings",    variant="default")
