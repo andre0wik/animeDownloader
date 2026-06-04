@@ -1,59 +1,84 @@
 # animeDownloader
 
-Script Python per scaricare anime da **AnimeUnity** (.so / .to / .tv) e manga/manhwa da **MangaDex** su Windows, con sincronizzazione automatica su server Linux via SSH.
+Python script to download anime from **AnimeUnity** and manga/manhwa/webtoons from multiple platforms on Windows, with automatic sync to a remote Linux server via SSH.
 
-## Funzionalità
+## Features
 
-- Scarica episodi anime in un intervallo specificato tramite `yt-dlp`
-- Scarica capitoli manga/manhwa da MangaDex (con supporto lingua italiana)
-- Interfaccia TUI interattiva per cercare e accodare download
-- Scarica automaticamente `ffmpeg`/`ffprobe` portatili se non presenti nel sistema
-- Sincronizza gli episodi su un server Linux remoto via SSH (copia i file mancanti, gestione filesystem)
-- Cronologia dei download (`history.json`) per evitare duplicati
-- Configurazione persistente via `settings.json`
+- Download anime episodes in a specified range via `yt-dlp`
+- Download manga/manhwa chapters from **7 platforms** as CBZ (optionally converted to PDF)
+- Download ebooks from **Anna's Archive** and **Z-Library**
+- Interactive TUI to search, browse and queue downloads
+- Automatically downloads portable `ffmpeg`/`ffprobe` if not present
+- Syncs downloaded files to a remote Linux server via SSH
+- Download history (`history.json`) to avoid duplicates
+- Persistent configuration via `settings.json`
 
-## Requisiti
+## Supported platforms
+
+### Anime
+| Platform | Language |
+|---|---|
+| [AnimeUnity](https://www.animeunity.so) | Italian |
+
+### Manga / Manhwa / Webtoon
+| Platform | Content | Language |
+|---|---|---|
+| [MangaDex](https://mangadex.org) | Manga, manhwa, manhua | Multi-language |
+| [MangaWorld](https://www.mangaworld.mx) | Manga, manhwa | Italian |
+| [Toonily](https://toonily.com) | Manhwa | English |
+| [Manhwatop](https://manhwatop.com) | Manhwa | English |
+| [LINE Webtoon](https://www.webtoons.com) | Webtoon | English |
+| [Tapas](https://tapas.io) | Webtoon / comic | English |
+
+### Ebooks
+| Platform | Notes |
+|---|---|
+| [Anna's Archive](https://annas-archive.org) | Aggregator (requires API key) |
+| [Z-Library](https://z-lib.id) | Requires API key |
+
+## Requirements
 
 - Python 3.9+
-- [`uv`](https://github.com/astral-sh/uv) (gestione dipendenze)
+- [`uv`](https://github.com/astral-sh/uv) (dependency management)
 
-Le dipendenze (`yt-dlp`, `curl-cffi`, `playwright`, `rich`, `textual`) vengono installate automaticamente da `uv`.
+Dependencies (`yt-dlp`, `curl-cffi`, `playwright`, `rich`, `textual`) are installed automatically by `uv`.
 
-## Utilizzo
+## Usage
 
-### AnimeUnity
+### Interactive TUI
 
-```bash
-# Scarica gli episodi dall'1 al 10
-uv run animeunity_dl.py download https://www.animeunity.so/anime/390-dragon-ball-super-ita 1 10
-
-# Scarica gli episodi mancanti/parziali
-uv run animeunity_dl.py missing https://www.animeunity.so/anime/390-dragon-ball-super-ita
-
-# Sincronizza i file mancanti sul server SSH Linux
-uv run animeunity_dl.py sync --local "D:/downloader/Dragon Ball Super Ita"
-```
-
-Su Windows puoi usare anche il batch incluso:
-
-```bat
-scarica_dbs.bat
-```
-
-### MangaDex
-
-Avvia la TUI interattiva e seleziona la sezione Manga:
+Launch the TUI to search and download from any supported platform:
 
 ```bash
 uv run animeunity_dl.py
 ```
 
-Dalla TUI è possibile:
-- Cercare manga, manhwa e manhua per titolo
-- Filtrare per lingua (italiano, inglese, spagnolo, francese), genere, stato, demografia e content rating
-- Scaricare i capitoli mancanti di una serie già presente in locale
-- Accodare più serie in parallelo
+From the TUI you can:
+- Search anime, manga, manhwa, webtoons and ebooks by title
+- Filter by language, genre, status, demographic, content rating and sort order
+- Select individual chapters/episodes to download
+- Queue multiple series in parallel
+- Monitor download progress in real time
 
-## Configurazione
+### AnimeUnity (CLI)
 
-Al primo avvio viene creato `settings.json` con i valori di default. Modifica il file per cambiare cartella di download, host SSH, numero di download paralleli, ecc.
+```bash
+# Download episodes 1 to 10
+uv run animeunity_dl.py download https://www.animeunity.so/anime/390-dragon-ball-super-ita 1 10
+
+# Download missing/partial episodes
+uv run animeunity_dl.py missing https://www.animeunity.so/anime/390-dragon-ball-super-ita
+
+# Sync missing files to a remote SSH server
+uv run animeunity_dl.py sync --local "D:/downloader/Dragon Ball Super Ita"
+```
+
+On Windows you can also use the included batch file:
+
+```bat
+scarica_dbs.bat
+```
+
+## Configuration
+
+On first launch `settings.json` is created with default values. Edit it to change the download folder, SSH host, number of parallel downloads, API keys, etc.
