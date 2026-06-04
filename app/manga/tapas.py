@@ -47,8 +47,8 @@ class TapasPlatform(MangaPlatform):
     name      = "Tapas"
     dl_subdir = "Tapas"
 
-    supported_filters = {"genres"}
-    genres            = _GENRES
+    supported_filters = set()
+    genres            = _GENRES  # solo per display nei risultati, non filtrabile via URL
 
     # ------------------------------------------------------------------ search
 
@@ -60,26 +60,22 @@ class TapasPlatform(MangaPlatform):
             resp = _SESSION.get(url, timeout=15)
             soup = BeautifulSoup(resp.text, "lxml")
             results = []
-            for item in soup.select(".search-item-wrap, .comic-item"):
-                # Find the series link
+            for item in soup.select("li.search-item-wrap"):
                 a = item.select_one("a[href*='/series/']")
                 if not a:
                     continue
-                href = a.get("href", "")
-                slug = href.strip("/").split("/")[-1]
-                # Title: use separator=" " to preserve spaces between elements
+                href     = a.get("href", "")
+                slug     = href.strip("/").split("/")[-1]
                 title_el = item.select_one(".title")
-                t        = title_el.get_text(separator=" ", strip=True) if title_el else slug
-                # Genres: join tag texts
-                tags = [tg.get_text(strip=True) for tg in item.select(".tags a")]
-                g    = ", ".join(tags[:3])
+                t        = title_el.get_text(strip=True) if title_el else slug
+                tags     = [tg.get_text(strip=True) for tg in item.select("p.tag a")]
                 results.append({
                     "manga_id":       slug,
                     "title":          t,
                     "status":         "",
                     "content_rating": "",
                     "original_lang":  "",
-                    "genres":         g,
+                    "genres":         ", ".join(tags[:3]),
                     "languages":      "en",
                     "platform":       self.id,
                     "_url":           f"{_BASE}{href}" if href.startswith("/") else href,
