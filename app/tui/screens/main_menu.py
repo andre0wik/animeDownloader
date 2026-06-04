@@ -22,15 +22,15 @@ class MainMenuScreen(Screen):
         yield Header()
         with Vertical(id="main-menu"):
             yield Static(
-                "[bold cyan]Scegli sorgente[/bold cyan]",
+                "[bold cyan]Choose source[/bold cyan]",
                 id="main-title",
             )
-            yield Button("Anime / Film  ·  AnimeUnity",    id="go-anime",       variant="primary")
-            yield Button("Manga / Manhwa  ·  6 piattaforme", id="go-manga",      variant="success")
-            yield Button("Ebook  ·  Anna's Archive + ZLib", id="go-ebook",    variant="success")
-            yield Button("Coda download  (Ctrl+D)",       id="go-queue",       variant="default")
-            yield Button("Impostazioni",                  id="go-settings",    variant="default")
-            yield Button("File Manager SSH",              id="go-filemanager", variant="warning")
+            yield Button("Anime / Film  ·  AnimeUnity",       id="go-anime",       variant="primary")
+            yield Button("Manga / Manhwa  ·  6 platforms",    id="go-manga",       variant="success")
+            yield Button("Ebook  ·  Anna's Archive + ZLib",   id="go-ebook",       variant="success")
+            yield Button("Download queue  (Ctrl+D)",          id="go-queue",       variant="default")
+            yield Button("Settings",                          id="go-settings",    variant="default")
+            yield Button("SSH File Manager",                  id="go-filemanager", variant="warning")
         yield Footer()
 
     @on(Button.Pressed, "#go-anime")
